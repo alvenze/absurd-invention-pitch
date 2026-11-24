@@ -25,6 +25,8 @@ def check(line: str) -> None:
         raise ValueError(f"entry must be 1-{MAX_CHARS} characters, got {len(line)}")
     if line.strip() != line or not line.strip():
         raise ValueError("entry must not be blank or padded with white space")
+    if any(ord(c) < 32 or ord(c) == 127 for c in line):
+        raise ValueError("entry must not contain control characters")
     # One sentence: after removing the "a.m." abbreviation, the only
     # full stop allowed is the final one.
     body = line.replace("a.m.", "am")
@@ -32,8 +34,11 @@ def check(line: str) -> None:
         raise ValueError("entry must be exactly one sentence")
 
 
-def main() -> int:
+def main(argv: list) -> int:
     check(LINE)
+    if "--check" in argv:
+        print(f"ok: entry is valid ({len(LINE)} chars, one sentence)")
+        return 0
     out_dir = "/output"
     try:
         os.makedirs(out_dir, exist_ok=True)
@@ -43,9 +48,13 @@ def main() -> int:
     path = os.path.join(out_dir, "entry.txt")
     with open(path, "w", encoding="utf-8") as f:
         f.write(LINE)
+    with open(path, "rb") as f:
+        written = f.read()
+    if written != LINE.encode("utf-8"):
+        raise ValueError("written file does not match the entry byte for byte")
     print(f"wrote {path} ({len(LINE)} chars)")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

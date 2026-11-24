@@ -19,7 +19,8 @@ One sentence, 182 characters. The annoyance is the mosquito everyone can hear at
 ## Run it
 
 ```sh
-python3 main.py
+python3 main.py          # write /output/entry.txt and verify it byte for byte
+python3 main.py --check  # validate the line against the gate without writing
 ```
 
 No dependencies beyond Python 3. The output file is written with no trailing newline, byte for byte the pitch.
